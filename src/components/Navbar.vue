@@ -4,28 +4,27 @@
             <a class="navbar-item" href="https://bulma.io">
                 <img src="https://blizzworldbg.com/resources/img/icons/hearthstone.svg" alt="logo" width="112" height="58">
             </a>
-            <div @click="toggleMenu" 
-                :class="{
-                    'burger': true,
-                    'navbar-burger': true,
-                    'is-active': navIsActive,
-                }" 
-                data-target="mainNav">
+            <div @click="toggleMenu"
+              data-target="mainNav"
+              :class="{
+              'burger': true,
+              'navbar-burger': true,
+              'is-active': navIsActive}">
                 <span></span>
                 <span></span>
                 <span></span>
             </div>
         </div>
 
-        <div id="mainNav" 
+        <div id="mainNav"
             :class="{
-                'navbar-end': true, 
-                'navbar-menu': true, 
+                'navbar-end': true,
+                'navbar-menu': true,
                 'is-active': navIsActive
             }">
             <div class="navbar-item">
                 <div class="field is-grouped">
-                    <div v-for="item in menuItems" 
+                    <div v-for="item in menuItems" :key="item.link"
                         class="navbar-item"
                         @click="handleMenuItemClick(item.link)">
                         <span>
@@ -42,38 +41,37 @@
 </template>
 <script>
 export default {
-    data(){
-        return {
-            menuItems: [
-                {
-                    link: '/',
-                    name: 'Home',
-                    icon: 'home'
-                },
-                {
-                    link: '/cards',
-                    name: 'Cards',
-                    icon: 'cards',
-                },
-                {
-                    link: '/decks',
-                    name: 'Decks',
-                    icon: 'stackoverflow'
-                }
-
-            ],
-            navIsActive: false,
-        }
-    },
-    methods: {
-        handleMenuItemClick(link){
-            this.$router.push(link)
+  data() {
+    return {
+      menuItems: [
+        {
+          link: '/',
+          name: 'Home',
+          icon: 'home',
         },
-        toggleMenu(){
-            this.navIsActive = !this.navIsActive
-        }
-    }
-}
+        {
+          link: '/cards',
+          name: 'Cards',
+          icon: 'cards',
+        },
+        {
+          link: '/decks',
+          name: 'Decks',
+          icon: 'stackoverflow',
+        },
+      ],
+      navIsActive: false,
+    };
+  },
+  methods: {
+    handleMenuItemClick(link) {
+      this.$router.push(link);
+    },
+    toggleMenu() {
+      this.navIsActive = !this.navIsActive;
+    },
+  },
+};
 </script>
 
 <style lang="stylus">
@@ -83,6 +81,4 @@ export default {
     margin 0px 10px
     &:hover
         color hs-legendary
-
-
 </style>
