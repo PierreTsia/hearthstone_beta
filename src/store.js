@@ -22,7 +22,7 @@ export default new Vuex.Store({
     fetchAllCards_SUCCESS(state, payload) {
       state.cards.all = payload
       for (let ext in payload){
-        state.cards.flatten.push(...payload[ext])
+        state.cards.flatten.push(...payload[ext].filter(card => card.cost))
       }
     },
   },
@@ -33,6 +33,14 @@ export default new Vuex.Store({
         .end((result) => {
           commit('fetchAllCards_SUCCESS', result.body);
         });
+    },
+    fetchCardById({ commit }, cardId) {
+      unirest.get(`${baseURL}/cards/${cardId}`)
+        .header('X-Mashape-Key', appKEY)
+        .end((result) => {
+          console.log(result.body)
+        });
+
     },
   },
   getters: {

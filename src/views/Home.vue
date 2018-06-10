@@ -13,42 +13,26 @@
         </div>
       </div>
   </section>
-  <section class="main_section">
+  <section  v-if="flattened.length" class="main_section">
     <div class="container">
     <template>
       <section>
-        <b-field grouped group-multiline>
-            <b-select v-model="defaultSortDirection">
-                <option value="asc">Default sort direction: ASC</option>
-                <option value="desc">Default sort direction: DESC</option>
-            </b-select>
-            <b-select v-model="perPage" :disabled="!isPaginated">
-                <option value="5">5 per page</option>
-                <option value="10">10 per page</option>
-                <option value="15">15 per page</option>
-                <option value="20">20 per page</option>
-            </b-select>
-            <div class="control">
-                <button class="button" @click="currentPage = 2" :disabled="!isPaginated">Set page to 2</button>
-            </div>
-            <div class="control is-flex">
-                <b-switch v-model="isPaginated">Paginated</b-switch>
-            </div>
-            <div class="control is-flex">
-                <b-switch v-model="isPaginationSimple" :disabled="!isPaginated">Simple pagination</b-switch>
-            </div>
-        </b-field>
+   
 
         <b-table
             :data="flattened"
             :paginated="isPaginated"
-            :per-page="perPage"
+            per-page=20
             :current-page.sync="currentPage"
             :pagination-simple="isPaginationSimple"
             :default-sort-direction="defaultSortDirection"
             default-sort="card.name">
 
             <template slot-scope="props">
+                 <b-table-column field="Cost" label="Cost" width="30" sortable>
+                    {{props.row.cost}}
+                </b-table-column>
+                
                 <b-table-column field="Set" label="Set" width="30" sortable>
                  <img :src="getCardSetIcon(props.row.cardSet)"/>
                 </b-table-column>
@@ -61,47 +45,78 @@
                       '--isRare':  props.row.rarity === 'Rare',
                       '--isEpic':  props.row.rarity === 'Epic',
                       '--isLegendary':  props.row.rarity === 'Legendary',
-                      }">{{ props.row.name }}</span>
-                </b-table-column>
-
-                <b-table-column field="user.last_name" label="Last Name" sortable>
-                    {{ props.row.name }}
-                </b-table-column>
-
-                <b-table-column field="date" label="Date" sortable centered>
-                    <span class="tag is-success">
-                       pouet
+                      }">
+                      <b-tooltip v-if="props.row.text" :label="sanitizeCardText(props.row.text)">
+                        {{ props.row.name }}
+                      </b-tooltip>
+                      <span v-else>{{ props.row.name }}</span>
                     </span>
                 </b-table-column>
+                <b-table-column field="Class" label="Class" sortable>
+                    {{ props.row.playerClass }}
+                </b-table-column>
+                <b-table-column field="type" label="Type" sortable>
+                    {{ props.row.type }}
+                </b-table-column>
 
-                <b-table-column label="Gender">
-                    <b-icon pack="fas"
-                        icon="cards">
-                    </b-icon>
-                    gender
+                <b-table-column  label="Actions"  centered>
+                    <span 
+                      class="tag is-danger"
+                      @click="openModal(props.row)">
+                       <b-icon 
+                        icon="eye"
+                        size="is-small">
+                        </b-icon>
+                    </span>
                 </b-table-column>
             </template>
         </b-table>
       </section>
     </template>
 
+   
 
 
+<template>
+    <section>
 
 
+    
+        <b-modal :active.sync="isCardModalActive" :width="640" scroll="keep">
+            <div v-if="modalContent" class="card">
+                <div class="card-image">
+                    <figure class="image">
+                        <img v-if="modalContent.img" class="modal_card--img":src="modalContent.img" alt="Image">
+                    </figure>
+                </div>
+                <div class="card-content">
+                    <div class="media">
+                  
+                        <div class="media-content">
+                            <p class="title is-4">{{modalContent.name}}</p>
+                            <p class="subtitle is-6"> Class: {{modalContent.playerClass}}</p>
+                        </div>
+                    </div>
+
+                    <div class="content">
+                        <span v-if="modalContent && modalContent.text" v-html="sanitizeModalText(modalContent.text)"></span>
+                        <br>
+                        <small>{{modalContent.artist}}</small>
+                    </div>
+                </div>
+            </div>
+        </b-modal>
+    </section>
+</template>
 
 
-
-      
     </div>
-  
-  
   </section>
 </div>
 </template>
 
 <script>
-import { mapGetters } from 'vuex';
+import { mapGetters, mapActions } from 'vuex';
 import Navbar from '@/components/Navbar.vue';
 
 export default {
@@ -115,13 +130,33 @@ export default {
       isPaginationSimple: false,
       defaultSortDirection: 'asc',
       currentPage: 1,
-      perPage: 5
+      perPage: 5,
+      isCardModalActive: false,
+      modalContent:null,
     }
   }, 
   computed: {
     ...mapGetters(['legendaries','flattened'])
   },
   methods: {
+    ...mapActions({
+      fetchCardById: 'fetchCardById',
+    }),
+    openModal(card){
+      this.modalContent = card;
+      this.isCardModalActive = true;
+    },
+    handleFetchCardDetails(cardId){
+      this.fetchCardById(cardId);
+    },
+    sanitizeCardText(string) {
+      return string.replace(/\\n/g, '').replace('_', ' ').replace('[x]', '').replace('<b>', '').replace('</b>', '').replace('$', '')
+    },
+    sanitizeModalText(string) {
+      return string.replace(/\\n/g, '<br>').replace('_', ' ').replace('[x]', '').replace('<b>', '<strong>').replace('</b>', '</strong>').replace('$', '')
+    },
+
+
     getCardSetIcon(cardSet) {
       switch (cardSet){
         case 'Classic': 
@@ -183,10 +218,7 @@ export default {
           break;
         case "Whispers of the Old Gods":
           return "https://raw.githubusercontent.com/HearthSim/hs-icons/master/PNG/Set_OG.png";
-          break;
-
-
-        
+          break;        
       }
     }
   }
@@ -210,6 +242,7 @@ export default {
 
 
   .main_section  
+    margin-top 50px
     .container
       background-color white
       .--isCommon
@@ -221,6 +254,19 @@ export default {
       .--isEpic
         color hs-epic
       .--isLegendary
-        color hs-legendary  
+        color hs-legendary
+
+  .card
+
+
+    .modal_card--img
+      height 400px
+      width auto
+      margin auto
+    .card-content
+      p
+        text-align center
+      .content
+        text-align center
 
 </style>
