@@ -27,13 +27,9 @@
     </div>
 </template>
 <script>
-    
+
 </script>
 <style>
-.column {
-    height: 400px;
-    background-color: lightblue;
-    border: 1px solid red;
-}
+
 
 </style>

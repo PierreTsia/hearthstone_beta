@@ -1,10 +1,10 @@
 import Vue from 'vue';
 import Router from 'vue-router';
 import Home from './views/Home.vue';
-import About from './views/About.vue';
-import DeckBuilder from './views/DeckBuilder.vue';
+import Cards from './views/Cards.vue';
+import Decks from './views/Decks.vue';
 
-Vue.use(Router)
+Vue.use(Router);
 
 export default new Router({
   mode: 'history',
@@ -15,14 +15,14 @@ export default new Router({
       component: Home,
     },
     {
-      path: '/about',
-      name: 'about',
-      component: About,
+      path: '/cards',
+      name: 'cards',
+      component: Cards,
     },
     {
-      path: '/deckbuilder',
-      name: 'deckbuilder',
-      component: DeckBuilder,
-    }
-  ]
-})
+      path: '/decks',
+      name: 'decks',
+      component: Decks,
+    },
+  ],
+});
